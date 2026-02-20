@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
@@ -35,7 +36,7 @@ public class GetCase extends SlashCommand {
         this.options = options;
     }
     @Override
-    protected void execute(SlashCommandEvent event) {
+    protected void execute(@NotNull SlashCommandEvent event) {
         int caseId = event.getOption("case").getAsInt();
         EmbedBuilder em = new EmbedBuilder();
         Case cCase = DBGetter.getCaseById(caseId, Oreo.getConnection());

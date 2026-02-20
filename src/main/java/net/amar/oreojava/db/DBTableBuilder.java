@@ -12,9 +12,10 @@ public class DBTableBuilder {
     public static void execute(Connection conn, Class<?> clazz) {
         try (Statement stmt = conn.createStatement()) {
             String sql = build(clazz);
-            Log.info("SQLite statement:\n"+sql);
+            Table table = clazz.getAnnotation(Table.class);
+            Log.info("SQLite statement for table ["+table.value()+"]:\n"+sql);
             stmt.execute(sql);
-            Log.info("DB ready!");
+            Log.info("Table "+table.value()+" ready on DB!");
         } catch (SQLException e) {
             Log.error("Failure while trying to create DB",e);
         }
@@ -48,7 +49,7 @@ public class DBTableBuilder {
         }
 
         sb.deleteCharAt(sb.length()-1);
-        sb.append(");");
+        sb.append(", time_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP").append(");");
         return sb.toString();
     }
 

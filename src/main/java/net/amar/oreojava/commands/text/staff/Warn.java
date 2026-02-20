@@ -9,17 +9,13 @@ import net.amar.oreojava.handlers.Verdict;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.TimeUnit;
+public class Warn extends Command {
 
-public class BanText extends Command {
-
-    public BanText() {
-        this.name = "ban";
-        this.help = "ban someone from a guild";
+    public Warn() {
+        this.name = "warn";
+        this.help = "warn a bad person";
         this.category = Categories.staff;
-        this.aliases = new String[]{"banish","kill","cook"};
         this.arguments = "<@user> [reason]";
         this.contexts = new InteractionContextType[]{
                 InteractionContextType.GUILD
@@ -29,7 +25,7 @@ public class BanText extends Command {
         };
     }
     @Override
-    protected void execute(@NotNull CommandEvent event) {
+    protected void execute(CommandEvent event) {
         String[] args = event.getArgs().split("\\s+", 2);
 
         if (args.length < 2) {
@@ -43,31 +39,28 @@ public class BanText extends Command {
         String proof = event.getMessage().getAttachments().isEmpty()
                 ? null
                 : event.getMessage().getAttachments().get(0).getUrl();
-        Member m = event.getMember();
 
+        Member m = event.getMember();
         event.getGuild().retrieveMemberById(uid).queue((mm) -> {
-            if (m.canInteract(mm)) {
-                event.getGuild().ban(mm, 0, TimeUnit.DAYS)
-                        .reason(reason)
-                        .queue(success -> {
-                            Case c = new Case(
-                                    mm.getUser().getId(),
-                                    mm.getUser().getName(),
-                                    m.getUser().getId(),
-                                    m.getUser().getName(),
-                                    "BAN",
-                                    reason,
-                                    "",
-                                    true
-                            );
-                            Verdict.buildVerdict(c, Oreo.getVerdictChannel(), mm.getUser(), proof);
-                            event.replySuccess("Banned **%s** for *%s*".formatted(mm.getEffectiveName(), reason));
-                        });
-            } else {
-                event.replyError("You can't punish a member higher than you");
-            }
+                    if (m.canInteract(mm)) {
+                        Case c = new Case(
+                                mm.getUser().getId(),
+                                mm.getUser().getName(),
+                                m.getUser().getId(),
+                                m.getUser().getName(),
+                                "WARN",
+                                reason,
+                                "",
+                                true
+                        );
+                        Verdict.buildVerdict(c, Oreo.getVerdictChannel(), mm.getUser(), proof);
+                        event.replySuccess("Warned **%s** for *%s*".formatted(mm.getEffectiveName(), reason));
+
+                    } else {
+                        event.replyError("You can't punish a member higher than you");
+                    }
                 },
                 failure -> event.replyError("Something went wrong\n[%s]".formatted(failure.getMessage()))
-                );
+        );
     }
 }

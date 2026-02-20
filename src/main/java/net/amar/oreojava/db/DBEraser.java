@@ -8,11 +8,11 @@ import java.sql.SQLException;
 
 public class DBEraser {
 
-    private static final String eraseEmbedTagStmt = """
+    public static boolean eraseEmbedTag(String id, Connection connection) {
+       final String eraseEmbedTagStmt = """
             DELETE FROM embedtags
             WHERE id = ?
             """;
-    public static boolean eraseEmbedTag(String id, Connection connection) {
         try (PreparedStatement ps = connection.prepareStatement(eraseEmbedTagStmt)) {
             ps.setString(1, id);
             int deletedRows = ps.executeUpdate();
@@ -20,6 +20,22 @@ public class DBEraser {
             return true;
         } catch (SQLException e) {
             Log.error("Failed to delete from EmbedTags table",e);
+            return false;
+        }
+    }
+
+    public static boolean eraseData(String fieldName, Connection connection) {
+        final String eraseDataStmt = """
+                DELETE FROM data
+                WHERE filedName = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(eraseDataStmt)) {
+            ps.setString(1, fieldName);
+            int deletedRows = ps.executeUpdate();
+            Log.info("Successfully deleted "+deletedRows+" rows from data table");
+            return true;
+        } catch (SQLException e) {
+            Log.error("Failed to delete from data table",e);
             return false;
         }
     }

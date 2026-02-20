@@ -2,12 +2,15 @@ package net.amar.oreojava.db.tables;
 
 import net.amar.oreojava.db.annotations.*;
 
-@Table(value="trying")
+@Table(value="cases")
 public class Case {
 
     @IntField
     @Primary(autoIncrement = true)
     int caseId;
+
+    @StringField
+    String messageId;
 
     @StringField
     @NonNull
@@ -82,5 +85,8 @@ public class Case {
     }
     public boolean isAppealable() {
         return appealable;
+    }
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 }

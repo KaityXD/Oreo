@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ public class RemoveEmbedTag extends SlashCommand {
         this.options = options;
     }
     @Override
-    protected void execute(SlashCommandEvent event) {
+    protected void execute(@NotNull SlashCommandEvent event) {
         String tagId = event.getOption("tag").getAsString();
         if (DBEraser.eraseEmbedTag(tagId, Oreo.getConnection())) event.replyFormat("Successfully deleted Embed Tag [%s]",tagId).queue();
         else event.replyFormat("Couldn't find or delete Embed Tag [%s]",tagId).queue();

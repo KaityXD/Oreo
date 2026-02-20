@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class GetCases extends SlashCommand {
         this.options = options;
     }
     @Override
-    protected void execute(SlashCommandEvent event) {
+    protected void execute(@NotNull SlashCommandEvent event) {
         User user = event.getOption("user").getAsUser();
         Map<Integer, Case> cases = DBGetter.getUserCases(user.getId(), Oreo.getConnection());
         if (cases == null) {
@@ -72,7 +73,7 @@ public class GetCases extends SlashCommand {
         }
 
         EmbedPaginator embedPaginator = new EmbedPaginator.Builder()
-                .setEventWaiter(Oreo.waiter)
+                .setEventWaiter(Oreo.getWaiter())
                 .setUsers(event.getUser())
                 .waitOnSinglePage(false)
                 .addItems(embeds)

@@ -7,9 +7,11 @@ import net.amar.oreojava.commands.Categories;
 import net.amar.oreojava.db.DBGetter;
 import net.amar.oreojava.db.tables.EmbedTag;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 
 public class CallEmbedTag extends Command {
 
@@ -17,11 +19,11 @@ public class CallEmbedTag extends Command {
         this.name = "embedtag";
         this.help = "call an embed tag";
         this.arguments = "[id]";
-        this.aliases = new String[]{"et"};
+        this.aliases = new String[]{"et", "tt"};
         this.category = Categories.general;
     }
     @Override
-    protected void execute(CommandEvent event) {
+    protected void execute(@NotNull CommandEvent event) {
         String EmbedTagId = event.getArgs();
 
         try {
@@ -32,9 +34,10 @@ public class CallEmbedTag extends Command {
             }
 
             EmbedBuilder em = new EmbedBuilder();
-            em.setTitle(embedTag.getTitle(), event.getJDA().getSelfUser().getAvatarUrl());
+            em.setTitle(embedTag.getTitle());
             em.setDescription(embedTag.getDescription());
             em.setColor(Color.cyan);
+            em.setFooter("", event.getJDA().getSelfUser().getAvatarUrl());
 
             if (event.getMessage().getReferencedMessage()!=null) {
                 event.getMessage().getReferencedMessage().replyEmbeds(em.build()).queue();

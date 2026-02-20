@@ -6,15 +6,18 @@ import net.amar.oreojava.Log;
 import net.amar.oreojava.Oreo;
 import net.amar.oreojava.commands.Categories;
 import net.amar.oreojava.db.tables.Case;
-import net.amar.oreojava.db.DBInserter;
+import net.amar.oreojava.handlers.Verdict;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class BanSlash extends SlashCommand {
 
@@ -34,34 +37,56 @@ public class BanSlash extends SlashCommand {
         options.add(new OptionData(OptionType.STRING, "reason", "why ban this user", true));
         options.add(new OptionData(OptionType.BOOLEAN, "appealable", "can they appeal their ban?", false));
         options.add(new OptionData(OptionType.ATTACHMENT, "proof", "optional proof", false));
+        options.add(new OptionData(OptionType.INTEGER, "delete-days", "message delete days", false));
         this.options = options;
     }
     @Override
-    protected void execute(SlashCommandEvent event) {
-        User moderator = event.getUser();
-        User user = event.getOption("user").getAsUser();
+    protected void execute(@NotNull SlashCommandEvent event) {
+        Member moderator = event.getMember();
+        Member user = event.getOption("user").getAsMember();
         String reason = event.getOption("reason").getAsString();
+        Message.Attachment image = null;
+        int deleteDays = 0;
         boolean appeal = true;
 
+        if (event.getOption("proof")!=null)
+            image = event.getOption("proof").getAsAttachment();
+        if (event.getOption("delete-days")!=null)
+            deleteDays = event.getOption("delete-days").getAsInt();
         if (event.getOption("appealable")!=null)
              appeal = event.getOption("appealable").getAsBoolean();
 
+
+        assert user != null;
+        assert moderator != null;
+
+        if (!moderator.canInteract(user)) {
+            event.reply("You can't punish a person with a higher tole").queue();
+            return;
+        }
+
         Case modCase = new Case(
-                user.getId(),
-                user.getName(),
+                user.getUser().getId(),
+                user.getUser().getName(),
                 moderator.getId(),
-                moderator.getName(),
+                moderator.getUser().getName(),
                 "BAN",
                 reason,
-                " ",
+                "",
                 appeal
         );
+
         try {
-            DBInserter.insert(Oreo.getConnection(), modCase);
-            event.replyFormat("Banned **%s** for Reason: **%s**", user.getName(), reason).queue();
+           if (image==null)
+               Verdict.buildVerdict(modCase, Oreo.getVerdictChannel(), user.getUser(), null);
+           else
+               Verdict.buildVerdict(modCase, Oreo.getVerdictChannel(), user.getUser(), image.getUrl());
+
+           event.getGuild().ban(user, deleteDays, TimeUnit.DAYS).reason(reason).queue();
+           event.replyFormat("Banned **%s** for Reason: **%s**", user.getUser().getName(), reason).queue();
         } catch (Exception e) {
             Log.error("Something went wrong while executing /ban command",e);
-            event.reply(e.getMessage()).queue();
+            event.replyFormat("*[%s]*",e.getMessage()).setEphemeral(true).queue();
         }
     }
 }

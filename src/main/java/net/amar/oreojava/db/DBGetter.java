@@ -16,11 +16,11 @@ import java.util.Map;
 public class DBGetter {
 
     private static final String getCaseByIdStmt = """
-            SELECT * FROM trying
+            SELECT * FROM cases
             WHERE caseId = ?
             """;
     private static final String getCaseByUserIdStmt = """
-            SELECT * FROM trying
+            SELECT * FROM cases
             WHERE userId = ?
             ORDER BY caseId ASC
             """;
@@ -74,6 +74,23 @@ public class DBGetter {
             );
         } catch (SQLException e) {
             Log.error("Failed to get case from DB",e);
+            return null;
+        }
+    }
+
+    public static String getCaseMessageId(Connection connection, String caseId) {
+        final String sql = """
+                SELECT messageId
+                FROM cases
+                WHERE caseId = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, Integer.parseInt(caseId));
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) return null;
+            else return rs.getString("messageId");
+        } catch (SQLException e) {
+            Log.error("Failed to get messageId",e);
             return null;
         }
     }
@@ -151,6 +168,34 @@ public class DBGetter {
         } catch (SQLException e) {
             Log.error("Failed to get EmbedTags",e);
             return null;
+        }
+    }
+
+    public static String getData(Connection connection, String data) {
+        String sql = """
+                SELECT * FROM data where fieldName = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, data);
+            ResultSet rs = ps.executeQuery();
+            return rs.getString(2);
+        } catch (SQLException e) {
+            Log.error("Failed to get honeypot id",e);
+            return null;
+        }
+    }
+
+    public static boolean dataAlreadyExists(String fieldName, Connection connection) {
+        final String sql = """
+                SELECT * FROM data WHERE fieldName = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, fieldName);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            Log.error("I have no idea",e);
+            return false;
         }
     }
 }

@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public class SetBotActivity extends SlashCommand {
                 InteractionContextType.GUILD,
                 InteractionContextType.PRIVATE_CHANNEL
         };
-        this.category = Categories.staff;
+        this.ownerCommand = true;
 
         List<OptionData> options = new ArrayList<>();
         options.add(new OptionData(OptionType.STRING, "activity-type","what activity type",true));
@@ -29,7 +30,7 @@ public class SetBotActivity extends SlashCommand {
         this.options = options;
     }
     @Override
-    protected void execute(SlashCommandEvent event) {
+    protected void execute(@NotNull SlashCommandEvent event) {
 
         String aActivityType = event.getOption("activity-type").getAsString();
         String aActivityText = event.getOption("activity-text").getAsString();

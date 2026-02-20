@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 import org.sqlite.SQLiteErrorCode;
 
 import java.sql.SQLException;
@@ -39,7 +40,7 @@ public class AddEmbedTag extends SlashCommand {
         this.options = options;
     }
     @Override
-    protected void execute(SlashCommandEvent event) {
+    protected void execute(@NotNull SlashCommandEvent event) {
         String tagId = event.getOption("tag").getAsString();
         String title = event.getOption("title").getAsString();
         String description = event.getOption("description").getAsString();

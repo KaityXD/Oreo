@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
@@ -32,7 +33,7 @@ public class GetEmbedTags extends SlashCommand {
         };
     }
     @Override
-    protected void execute(SlashCommandEvent event) {
+    protected void execute(@NotNull SlashCommandEvent event) {
         List<EmbedTag> embedTagList = DBGetter.getEmbedTags(Oreo.getConnection());
         List<MessageEmbed> embeds = new ArrayList<>();
 
@@ -54,7 +55,7 @@ public class GetEmbedTags extends SlashCommand {
                     .build());
         }
         EmbedPaginator embedPaginator = new EmbedPaginator.Builder()
-                .setEventWaiter(Oreo.waiter)
+                .setEventWaiter(Oreo.getWaiter())
                 .setUsers(event.getUser())
                 .waitOnSinglePage(false)
                 .addItems(embeds)

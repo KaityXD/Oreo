@@ -8,13 +8,14 @@ import net.amar.oreojava.db.annotations.Table;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DBInserter {
-
-    public static void insert(Connection connection, Object obj) throws SQLException {
+    private static final String CASE_TABLE = "cases";
+    public static long insert(Connection connection, Object obj) throws SQLException {
         Class<?> clazz = obj.getClass();
         Table table = clazz.getAnnotation(Table.class);
         List<Field> fields = new ArrayList<>();
@@ -22,9 +23,9 @@ public class DBInserter {
         for (Field f : clazz.getDeclaredFields()) {
             if (f.isAnnotationPresent(Primary.class) && f.getAnnotation(Primary.class).autoIncrement())
                 continue;
+
             fields.add(f);
         }
-
         String insertStmt = insertStmtBuilder(fields, table.value());
         try (PreparedStatement ps = connection.prepareStatement(insertStmt)) {
 
@@ -38,10 +39,17 @@ public class DBInserter {
                 else ps.setObject(i + 1, value);
             }
             ps.executeUpdate();
+            if (CASE_TABLE.equals(table.value())) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) return rs.getLong(1);
+                }
+            }
             Log.info("Successfully inserted into "+table.value()+" with SQLite stmt: "+insertStmt);
         } catch (SQLException | IllegalAccessException e) {
             Log.error("Unable to write to "+table.value()+" table from DB",e);
+            return -1;
         }
+        return 0;
     }
 
     private static String insertStmtBuilder(List<Field> fields, String table) {
