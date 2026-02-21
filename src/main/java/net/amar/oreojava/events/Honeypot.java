@@ -32,7 +32,6 @@ public class Honeypot extends ListenerAdapter {
 
         if (!event.getChannel().getId().equals(Oreo.getForbiddenChannel().getId()))
             return;
-
         User user = event.getAuthor();
         deleteRecentMessagesGuildWide(event.getGuild(), user);
         event.getMessage().delete().reason("honeypot").queue();
