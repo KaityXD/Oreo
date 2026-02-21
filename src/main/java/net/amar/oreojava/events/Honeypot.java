@@ -28,9 +28,9 @@ public class Honeypot extends ListenerAdapter {
             return;
         }
 
-        TextChannel channel = event.getChannel().asTextChannel();
 
-        if (!channel.getId().equals(Oreo.getForbiddenChannel().getId()))
+
+        if (!event.getChannel().getId().equals(Oreo.getForbiddenChannel().getId()))
             return;
 
         User user = event.getAuthor();
